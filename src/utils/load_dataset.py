@@ -10,7 +10,4 @@ def load_dataset():
     data_head = list(data.take(20))
     docs = pd.DataFrame(data_head).to_dict("records")
 
-    # Check the number of documents in the dataset
-    print(f"Number of documents: {len(docs)}")
-    # Preview a document
-    print(f"preview: {docs[0]}")
+    return docs
