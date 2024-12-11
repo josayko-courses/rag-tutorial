@@ -1,0 +1,21 @@
+[project]
+name = "rag-tutorial"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = "==3.12.4"
+dependencies = [
+    "datasets>=3.2.0",
+    "fireworks-ai>=0.15.10",
+    "langchain>=0.3.11",
+    "pymongo>=4.10.1",
+    "python-dotenv>=1.0.1",
+    "sentence-transformers>=3.3.1",
+    "tiktoken>=0.8.0",
+    "tqdm>=4.67.1",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3.4",
+]
