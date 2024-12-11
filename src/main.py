@@ -3,6 +3,8 @@ import os
 from dotenv import load_dotenv
 from pymongo import MongoClient
 
+from utils import load_dataset
+
 load_dotenv()
 
 # Initialize a MongoDB Python client
@@ -12,3 +14,5 @@ mongodb_client = MongoClient(MONGODB_URI, appname="devrel.workshop.rag")
 pong = mongodb_client.admin.command("ping")
 if pong["ok"] == 1:
     print("MongoDB connection successful")
+
+load_dataset()
