@@ -2,12 +2,12 @@ import json
 import os
 
 from dotenv import load_dotenv
-from pymongo import MongoClient
 from tqdm import tqdm
 
 from utils.chunk_data import get_chunks
 from utils.generate_embeddings import get_embedding
 from utils.load_dataset import load_dataset
+from utils.mongo_driver import MongoDriver
 
 load_dotenv()
 
@@ -15,7 +15,9 @@ load_dotenv()
 def main():
     # Initialize a MongoDB Python client
     MONGODB_URI = os.getenv("MONGODB_URI")
-    mongodb_client = MongoClient(MONGODB_URI, appname="devrel.workshop.rag")
+    assert isinstance(MONGODB_URI, str)
+    mongodb_driver = MongoDriver(MONGODB_URI)
+    mongodb_client = mongodb_driver.client
     # Check the connection to the server
     pong = mongodb_client.admin.command("ping")
     if pong["ok"] == 1:
@@ -46,16 +48,14 @@ def main():
     # Check that the length of `embedded_docs` is the same as that of `split_docs`
     print(f"Length of embedded_docs: {len(embedded_docs)}")
 
-    # Ingest data into MongoDB
-    DB_NAME = "mongodb_rag_lab"
     COLLECTION_NAME = "knowledge_base"
     ATLAS_VECTOR_SEARCH_INDEX_NAME = "vector_index"
+    # Ingest data into MongoDB
+    mongodb_driver.ingest_data(COLLECTION_NAME, embedded_docs)
 
-    collection = mongodb_client[DB_NAME][COLLECTION_NAME]
-    collection.delete_many({})
-    collection.insert_many(embedded_docs)
-    print(
-        f"Ingested {collection.count_documents({})} documents into the {COLLECTION_NAME} collection."
+    # Create a vector search index
+    mongodb_driver.create_vector_search_index(
+        COLLECTION_NAME, ATLAS_VECTOR_SEARCH_INDEX_NAME
     )
 
 
