@@ -1,5 +1,4 @@
 import time
-from typing import Dict, List
 
 from pymongo import MongoClient
 
@@ -114,7 +113,7 @@ class MongoDriver:
                 return True
         return False
 
-    def vector_search(self, collection_name: str, user_query: str) -> List[Dict]:
+    def vector_search(self, collection_name: str, user_query: str):
         """
         Retrieve relevant documents for a user query using vector search.
 
