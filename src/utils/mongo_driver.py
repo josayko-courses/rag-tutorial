@@ -1,3 +1,4 @@
+import time
 from typing import Dict, List
 
 from pymongo import MongoClient
@@ -51,6 +52,67 @@ class MongoDriver:
 
         self.client[self.db_name][collection_name].create_search_index(model=model)
         self.vector_search_index_name = index_name
+
+    def update_search_index(self, collection_name: str) -> None:
+        model = {
+            "name": self.vector_search_index_name,
+            "type": "vectorSearch",
+            "definition": {
+                "fields": [
+                    {
+                        "type": "vector",
+                        "path": "embedding",
+                        "numDimensions": 384,
+                        "similarity": "cosine",
+                    },
+                    {"type": "filter", "path": "metadata.contentType"},
+                ]
+            },
+        }
+        self.client[self.db_name][collection_name].update_search_index(
+            name=self.vector_search_index_name, definition=model["definition"]
+        )
+
+    def update_search_index_2(self, collection_name: str) -> None:
+        model = {
+            "name": self.vector_search_index_name,
+            "type": "vectorSearch",
+            "definition": {
+                "fields": [
+                    {
+                        "type": "vector",
+                        "path": "embedding",
+                        "numDimensions": 384,
+                        "similarity": "cosine",
+                    },
+                    {"type": "filter", "path": "metadata.contentType"},
+                    {"type": "filter", "path": "updated"},
+                ]
+            },
+        }
+        self.client[self.db_name][collection_name].update_search_index(
+            name=self.vector_search_index_name, definition=model["definition"]
+        )
+        self.__wait_for_index(collection_name)
+
+    def __wait_for_index(self, collection_name):
+        # Poll for readiness
+        timeout = 60  # seconds
+        start_time = time.time()
+        while not self.__is_index_ready(collection_name, self.vector_search_index_name):
+            if time.time() - start_time > timeout:
+                raise TimeoutError(
+                    f"Index {self.vector_search_index_name} did not become ready within {timeout} seconds."
+                )
+            time.sleep(5)  # Wait for a few seconds before checking again
+
+    # Function to check if the index is ready
+    def __is_index_ready(self, collection_name, index_name):
+        indexes = self.client[self.db_name][collection_name].list_search_indexes()
+        for index in indexes:
+            if index["name"] == index_name and index["status"] == "READY":
+                return True
+        return False
 
     def vector_search(self, collection_name: str, user_query: str) -> List[Dict]:
         """
