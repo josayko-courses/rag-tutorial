@@ -46,6 +46,18 @@ def main():
     # Check that the length of `embedded_docs` is the same as that of `split_docs`
     print(f"Length of embedded_docs: {len(embedded_docs)}")
 
+    # Ingest data into MongoDB
+    DB_NAME = "mongodb_rag_lab"
+    COLLECTION_NAME = "knowledge_base"
+    ATLAS_VECTOR_SEARCH_INDEX_NAME = "vector_index"
+
+    collection = mongodb_client[DB_NAME][COLLECTION_NAME]
+    collection.delete_many({})
+    collection.insert_many(embedded_docs)
+    print(
+        f"Ingested {collection.count_documents({})} documents into the {COLLECTION_NAME} collection."
+    )
+
 
 if __name__ == "__main__":
     main()
