@@ -3,8 +3,10 @@ import os
 
 from dotenv import load_dotenv
 from pymongo import MongoClient
+from tqdm import tqdm
 
 from utils.chunk_data import get_chunks
+from utils.generate_embeddings import get_embedding
 from utils.load_dataset import load_dataset
 
 load_dotenv()
@@ -35,6 +37,14 @@ def main():
 
     # Preview one of the items in split_docs- ensure that it is a Python dictionary
     print(f"preview doc: {json.dumps(split_docs[0], indent=2)}")
+
+    embedded_docs = []
+    for doc in tqdm(split_docs):
+        doc["embedding"] = get_embedding(doc["body"])
+        embedded_docs.append(doc)
+
+    # Check that the length of `embedded_docs` is the same as that of `split_docs`
+    print(f"Length of embedded_docs: {len(embedded_docs)}")
 
 
 if __name__ == "__main__":
