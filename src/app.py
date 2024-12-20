@@ -1,6 +1,5 @@
 import os
-import time
-from typing import Any, Iterable
+from typing import Any
 
 from dotenv import load_dotenv
 from fireworks.client import Fireworks
@@ -97,6 +96,28 @@ def generate_answer(user_query: str) -> None:
     return response.choices[0].message.content
 
 
+# Define a function to answer user queries in streaming mode using Fireworks' Chat Completion API
+def generate_answer_2(user_query: str) -> None:
+    """
+    Generate an answer to the user query.
+
+    Args:
+        user_query (str): The user's query string.
+    """
+    # Use the `create_prompt` function defined in Step 9 to create a chat prompt
+    prompt = create_prompt_2(user_query)
+    # Use the `prompt` created above to populate the `content` field in the chat message
+    # Set the `stream` parameter to True
+    response = fw_client.chat.completions.create(
+        model=model, messages=[{"role": "user", "content": prompt}], stream=True
+    )
+
+    # Iterate through the `response` generator and print the results as they are generated
+    for chunk in response:
+        if chunk.choices[0].delta.content:
+            print(chunk.choices[0].delta.content, end="")
+
+
 if __name__ == "__main__":
     # Run the `generate_answer` function with a user query
     # user_query_1 = "What is MongoDB Atlas Search?"
@@ -119,8 +140,11 @@ if __name__ == "__main__":
     # print(user_query_4)
     # time.sleep(3)
     # print(answer_4)
-    user_query_5 = "What are triggers in MongoDB Atlas?"
-    answer_5 = generate_answer(user_query_5)
-    print(user_query_5)
-    time.sleep(3)
-    print(answer_5)
+    # user_query_5 = "What are triggers in MongoDB Atlas?"
+    # answer_5 = generate_answer(user_query_5)
+    # print(user_query_5)
+    # time.sleep(3)
+    # print(answer_5)
+    user_query_6 = "What is Atlas Search and how Atlas Search maps documents?"
+    print(user_query_6)
+    generate_answer_2(user_query_6)
